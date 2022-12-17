@@ -1,0 +1,26 @@
+let apiKey = "your-api-key"
+let apiSecret = "your-api-secret"
+
+let url = URL(string: "https://api.coinbase.com/v2/prices/BTC-USD/buy")!
+let session = URLSession.shared
+
+var request = URLRequest(url: url)
+request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+
+let task = session.dataTask(with: request) { data, response, error in
+  if let error = error {
+    print(error)
+  } else if let data = data, let response = response as? HTTPURLResponse {
+    if response.statusCode == 200 {
+      let json = try? JSONSerialization.jsonObject(with: data, options: [])
+      if let dictionary = json as? [String: Any] {
+        if let data = dictionary["data"] as? [String: Any] {
+          if let amount = data["amount"] as? String {
+            print("Current Bitcoin price: \(amount)")
+          }
+        }
+      }
+    }
+  }
+}
+task.resume()
